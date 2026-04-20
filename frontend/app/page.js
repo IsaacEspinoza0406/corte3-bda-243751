@@ -1,66 +1,95 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from './context/AuthContext';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { setRol, setVetId } = useAuth();
+
+  const [selectedRol, setSelectedRol] = useState('');
+  const [inputVetId, setInputVetId]   = useState('');
+  const [error, setError]             = useState('');
+
+  const handleIngresar = () => {
+    setError('');
+
+    if (!selectedRol) {
+      setError('Selecciona un rol para continuar.');
+      return;
+    }
+
+    if (selectedRol === 'veterinario' && !inputVetId.trim()) {
+      setError('Debes ingresar el ID del veterinario.');
+      return;
+    }
+
+    setRol(selectedRol);
+    setVetId(selectedRol === 'veterinario' ? inputVetId.trim() : '');
+    router.push('/buscar');
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md">
+        {/* ── Título ── */}
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
+          🐾 Clínica Veterinaria
+        </h1>
+        <p className="text-center text-gray-500 mb-8">
+          Sistema de Gestión
+        </p>
+
+        {/* ── Selector de rol ── */}
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Rol de acceso
+        </label>
+        <select
+          value={selectedRol}
+          onChange={(e) => { setSelectedRol(e.target.value); setError(''); }}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        >
+          <option value="">Selecciona tu rol...</option>
+          <option value="veterinario">Veterinario</option>
+          <option value="recepcion">Recepción</option>
+          <option value="administrador">Administrador</option>
+        </select>
+
+        {/* ── Campo de Vet ID (solo si el rol es veterinario) ── */}
+        {selectedRol === 'veterinario' && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              ID del Veterinario
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: 1"
+              value={inputVetId}
+              onChange={(e) => { setInputVetId(e.target.value); setError(''); }}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </div>
+        )}
+
+        {/* ── Mensaje de error ── */}
+        {error && (
+          <p className="text-red-600 text-sm mb-4 bg-red-50 rounded-lg p-2">
+            ⚠️ {error}
+          </p>
+        )}
+
+        {/* ── Botón de ingreso ── */}
+        <button
+          onClick={handleIngresar}
+          className="w-full bg-blue-600 text-white font-semibold py-2 px-4
+                     rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+        >
+          Ingresar al sistema
+        </button>
+      </div>
+    </main>
   );
 }
