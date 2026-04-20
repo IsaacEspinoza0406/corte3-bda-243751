@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # ───── PostgreSQL 15 ─────
+  postgres:
+    image: postgres:15
+    container_name: clinica_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vetadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vetpass123}
+      POSTGRES_DB: ${POSTGRES_DB:-clinica_vet}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema_corte3.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vetadmin} -d ${POSTGRES_DB:-clinica_vet}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - clinica-network
+
+  # ───── Redis 7 ─────
+  redis:
+    image: redis:7-alpine
+    container_name: clinica_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - clinica-network
+
+  # ───── API Node.js / Express ─────
+  api:
+    build: ./api
+    container_name: clinica_api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3001}:3001"
+    env_file:
+      - ./api/.env
+    volumes:
+      - ./api/src:/app/src        # hot reload con nodemon
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - clinica-network
+
+volumes:
+  pgdata:
+
+networks:
+  clinica-network:
+    driver: bridge

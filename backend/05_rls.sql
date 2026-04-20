@@ -1,0 +1,1 @@
+-- Row Level Security — Clínica Veterinaria
