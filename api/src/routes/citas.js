@@ -3,6 +3,13 @@ const pool = require('../db');
 
 const router = Router();
 
+// ── Mapeo de header X-Role → rol de PostgreSQL ──
+const PG_ROLE_MAP = {
+  veterinario:   'rol_veterinario',
+  recepcion:     'rol_recepcion',
+  administrador: null,
+};
+
 // ─────────────────────────────────────────────────────────────
 // POST /api/citas
 // Body JSON: { mascota_id, veterinario_id, fecha_hora, motivo }
@@ -12,10 +19,11 @@ const router = Router();
 //   - Veterinario activo
 //   - No es día de descanso
 //   - Mascota existe
-// Si alguna validación falla, el procedure lanza EXCEPTION
-// que se captura y se devuelve como 400.
+// Si alguna validación falla, el procedure lanza EXCEPTION.
 // ─────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
+  const role  = req.headers['x-role'];
+  const vetId = req.headers['x-vet-id'];
   const { mascota_id, veterinario_id, fecha_hora, motivo } = req.body;
 
   // ── Validar campos requeridos ──
@@ -23,22 +31,50 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Faltan campos requeridos' });
   }
 
+  let client;
+
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    // ── SET ROLE para que RLS aplique ──
+    const pgRole = PG_ROLE_MAP[role];
+    if (pgRole) {
+      await client.query(`SET ROLE ${pgRole}`);
+    }
+
+    if (role === 'veterinario' && vetId) {
+      const safeVetId = parseInt(vetId, 10);
+      if (isNaN(safeVetId)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'X-Vet-Id inválido' });
+      }
+      await client.query(`SET LOCAL app.current_vet_id = '${safeVetId}'`);
+    }
+
     // ── Llamar al stored procedure con query parametrizada ──
-    await pool.query(
+    await client.query(
       'CALL sp_agendar_cita($1, $2, $3::TIMESTAMP, $4, NULL)',
       [mascota_id, veterinario_id, fecha_hora, motivo]
     );
+
+    await client.query('COMMIT');
 
     res.status(201).json({
       mensaje: 'Cita agendada correctamente',
     });
 
   } catch (err) {
-    // Las excepciones del procedure (vet inactivo, día de descanso,
-    // mascota no encontrada) llegan aquí como errores de PostgreSQL.
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+    }
     console.error('[ERROR] POST /api/citas:', err.message);
     res.status(400).json({ error: err.message });
+  } finally {
+    if (client) {
+      try { await client.query('RESET ROLE'); } catch (_) {}
+      client.release();
+    }
   }
 });
 
@@ -46,9 +82,7 @@ router.post('/', async (req, res) => {
 // GET /api/citas
 // Headers: X-Role, X-Vet-Id
 //
-// Retorna las citas visibles según el rol.
-// Si es veterinario, RLS filtra automáticamente a solo sus citas
-// tras ejecutar SET LOCAL app.current_vet_id.
+// Si es veterinario, RLS filtra automáticamente a solo sus citas.
 // ─────────────────────────────────────────────────────────────
 router.get('/', async (req, res) => {
   const role  = req.headers['x-role'];
@@ -58,15 +92,28 @@ router.get('/', async (req, res) => {
 
   try {
     client = await pool.connect();
+    await client.query('BEGIN');
 
-    // ── Si el rol es veterinario, activar RLS ──
+    // ── SET ROLE para que RLS aplique ──
+    const pgRole = PG_ROLE_MAP[role];
+    if (pgRole) {
+      await client.query(`SET ROLE ${pgRole}`);
+    }
+
     if (role === 'veterinario' && vetId) {
-      await client.query('SET LOCAL app.current_vet_id = $1', [vetId]);
+      const safeVetId = parseInt(vetId, 10);
+      if (isNaN(safeVetId)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'X-Vet-Id inválido' });
+      }
+      await client.query(`SET LOCAL app.current_vet_id = '${safeVetId}'`);
     }
 
     const { rows } = await client.query(
       'SELECT * FROM citas ORDER BY fecha_hora DESC'
     );
+
+    await client.query('COMMIT');
 
     res.json({
       total: rows.length,
@@ -74,10 +121,16 @@ router.get('/', async (req, res) => {
     });
 
   } catch (err) {
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+    }
     console.error('[ERROR] GET /api/citas:', err.message);
     res.status(500).json({ error: err.message });
   } finally {
-    if (client) client.release();
+    if (client) {
+      try { await client.query('RESET ROLE'); } catch (_) {}
+      client.release();
+    }
   }
 });
 
