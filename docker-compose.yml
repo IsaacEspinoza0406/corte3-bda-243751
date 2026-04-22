@@ -3,7 +3,7 @@ version: "3.9"
 services:
   # ───── PostgreSQL 15 ─────
   postgres:
-    image: postgres:15
+    image: postgres:16-alpine
     container_name: clinica_postgres
     restart: unless-stopped
     environment:
@@ -11,12 +11,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vetpass123}
       POSTGRES_DB: ${POSTGRES_DB:-clinica_vet}
     ports:
-      - "5432:5432"
+      - "5440:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./schema_corte3.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vetadmin} -d ${POSTGRES_DB:-clinica_vet}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vetadmin} -d ${POSTGRES_DB:-clinica_vet}" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -31,7 +31,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -48,7 +48,7 @@ services:
     env_file:
       - ./api/.env
     volumes:
-      - ./api/src:/app/src        # hot reload con nodemon
+      - ./api/src:/app/src # hot reload con nodemon
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,8 +57,25 @@ services:
     networks:
       - clinica-network
 
+  # ───── Frontend Next.js ─────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: clinica_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on:
+      - api
+    networks:
+      - clinica-network
+
 volumes:
   pgdata:
+
 
 networks:
   clinica-network:
