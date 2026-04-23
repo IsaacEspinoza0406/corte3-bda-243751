@@ -1,15 +1,9 @@
--- =============================================================
--- Stored Procedures — Clínica Veterinaria
--- Corte 3 · Base de Datos Avanzadas
--- =============================================================
-
 -- sp_agendar_cita
 -- Agenda una nueva cita validando:
 --   1. Que el veterinario exista y esté activo
 --   2. Que no sea un día de descanso del veterinario
 --   3. Que la mascota exista
 -- Retorna el ID de la cita creada en el parámetro OUT p_cita_id.
--- =============================================================
 CREATE OR REPLACE PROCEDURE sp_agendar_cita(
     p_mascota_id     INT,
     p_veterinario_id INT,
@@ -40,7 +34,6 @@ BEGIN
     END IF;
 
     -- ───── 2. Verificar que no es día de descanso ─────
-    -- Mapeo numérico a nombre español (EXTRACT DOW: 0=dom … 6=sáb)
     v_dia_semana := lower(trim(
         (ARRAY['domingo','lunes','martes','miercoles','jueves','viernes','sabado'])
         [EXTRACT(DOW FROM p_fecha_hora)::INT + 1]
