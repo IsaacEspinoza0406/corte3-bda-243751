@@ -29,10 +29,6 @@ inyección sea **estructuralmente imposible**, no depende de escapar caracteres.
 **Resultado esperado del atacante:** Todas las mascotas de la BD.
 **Resultado real:** 0 mascotas. La búsqueda trata el input literalmente como un nombre.
 
-> **📸 SCREENSHOT PENDIENTE:** Toma una captura de la pantalla /buscar mostrando
-> 0 resultados después de buscar `' OR '1'='1`.
-> Reemplaza este bloque con tu imagen.
-
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58:
@@ -65,10 +61,6 @@ No hay ninguna mascota cuyo nombre contenga esa cadena, así que retorna 0 filas
 **Resultado esperado del atacante:** La tabla `mascotas` es eliminada.
 **Resultado real:** 0 mascotas encontradas. La tabla sigue intacta.
 
-> **📸 SCREENSHOT PENDIENTE:** Toma una captura mostrando que la búsqueda
-> retorna 0 resultados y la tabla sigue funcionando (busca algo válido después).
-> Reemplaza este bloque con tu imagen.
-
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58 (misma defensa):
@@ -100,9 +92,6 @@ instrucción SQL separada. Adicionalmente, incluso si llegara a ejecutarse de al
 **Resultado esperado del atacante:** Datos de la tabla `veterinarios` mezclados con mascotas.
 **Resultado real:** 0 mascotas encontradas. No hay datos exfiltrados.
 
-> **📸 SCREENSHOT PENDIENTE:** Toma una captura mostrando 0 resultados
-> con este input. Reemplaza este bloque con tu imagen.
-
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58 (misma defensa):
@@ -125,12 +114,12 @@ el protocolo.
 
 ### Contexto: Asignaciones vet → mascotas (según `vet_atiende_mascota`)
 
-| Veterinario               | vet_id | Mascotas asignadas              |
-|----------------------------|--------|---------------------------------|
-| Dr. Fernando López Castro  | 1      | Firulais (1), Toby (5), Max (7) |
-| Dra. Sofía García Velasco  | 2      | Misifú (2), Luna (4), Dante (9) |
+| Veterinario                | vet_id | Mascotas asignadas                           |
+|----------------------------|--------|---------------------------------            |
+| Dr. Fernando López Castro  | 1      | Firulais (1), Toby (5), Max (7)             |
+| Dra. Sofía García Velasco  | 2      | Misifú (2), Luna (4), Dante (9)             |
 | Dr. Andrés Méndez Bravo    | 3      | Rocky (3), Pelusa (6), Coco (8), Mango (10) |
-| Dra. Mónica Sánchez Aguilar| 4      | Ninguna (inactiva)              |
+| Dra. Mónica Sánchez Aguilar| 4      | Ninguna (inactiva)                          |
 
 ---
 
@@ -143,10 +132,6 @@ el protocolo.
 
 **Resultado esperado:** La tabla muestra solo **3 mascotas**: Firulais, Toby, Max
 **Resultado real:**
-
-> **📸 SCREENSHOT PENDIENTE:** Captura de `/buscar` mostrando la tabla
-> con exactamente 3 mascotas (Firulais, Toby, Max) y el badge
-> "Sesión: Veterinario (ID: 1)". Reemplaza este bloque con tu imagen.
 
 **Política RLS que lo produce:**
 ```sql
@@ -172,11 +157,6 @@ donde existe una fila en `vet_atiende_mascota` con `vet_id = 1`.
 2. En `/buscar`, click en "Buscar"
 
 **Resultado esperado:** La tabla muestra solo **3 mascotas**: Misifú, Luna, Dante
-
-> **📸 SCREENSHOT PENDIENTE:** Captura de `/buscar` mostrando la tabla
-> con exactamente 3 mascotas (Misifú, Luna, Dante) y el badge
-> "Sesión: Veterinario (ID: 2)". Reemplaza este bloque con tu imagen.
-
 ---
 
 ### Prueba 2.3 — Recepción ve TODAS las mascotas
@@ -186,10 +166,6 @@ donde existe una fila en `vet_atiende_mascota` con `vet_id = 1`.
 2. En `/buscar`, click en "Buscar"
 
 **Resultado esperado:** La tabla muestra las **10 mascotas** del sistema.
-
-> **📸 SCREENSHOT PENDIENTE:** Captura de `/buscar` mostrando la tabla
-> con 10 mascotas y el badge "Sesión: Recepción".
-> Reemplaza este bloque con tu imagen.
 
 **Política RLS que lo produce:**
 ```sql
@@ -209,9 +185,6 @@ La condición `TRUE` permite que la recepción vea todas las filas sin filtro.
 
 **Resultado esperado:** La tabla muestra las **10 mascotas** del sistema.
 
-> **📸 SCREENSHOT PENDIENTE:** Captura mostrando 10 mascotas y badge
-> "Sesión: Administrador". Reemplaza este bloque con tu imagen.
-
 **¿Por qué ve todo?** El rol `rol_administrador` tiene `BYPASSRLS`, así que
 PostgreSQL ni siquiera evalúa las políticas. La API no ejecuta `SET ROLE`
 para el administrador — la conexión se mantiene como `vetadmin`.
@@ -222,12 +195,12 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 
 ### Configuración del caché
 
-| Parámetro     | Valor                          |
-|---------------|--------------------------------|
-| Clave Redis   | `vacunacion_pendiente`         |
-| TTL           | 300 segundos (5 minutos)       |
+| Parámetro     | Valor                                |
+|---------------|--------------------------------      |
+| Clave Redis   | `vacunacion_pendiente`               |
+| TTL           | 300 segundos (5 minutos)             |
 | Invalidación  | `redis.del()` en `POST /api/vacunas` |
-| Endpoint      | `GET /api/vacunacion-pendiente`|
+| Endpoint      | `GET /api/vacunacion-pendiente`      |
 
 ---
 
@@ -247,13 +220,6 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 [BD] Consulta completada en XXXms
 ```
 
-> **📸 SCREENSHOT PENDIENTE:** Captura de `/vacunacion` mostrando el
-> badge rojo "BASE DE DATOS 🔴" y la tabla con datos.
-> Reemplaza este bloque con tu imagen.
-
-> **📋 LOG PENDIENTE:** Copia aquí el log real de tu terminal API
-> mostrando CACHE MISS y la latencia de la consulta.
-
 ---
 
 ### Prueba 3.2 — Segunda consulta (CACHE HIT)
@@ -270,12 +236,6 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 ```
 [2026-04-XX...] [CACHE HIT] vacunacion_pendiente
 ```
-
-> **📸 SCREENSHOT PENDIENTE:** Captura mostrando el badge verde
-> "CACHÉ HIT 🟢" con los mismos datos.
-> Reemplaza este bloque con tu imagen.
-
-> **📋 LOG PENDIENTE:** Copia aquí el log real mostrando CACHE HIT.
 
 ---
 
@@ -302,11 +262,6 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 [2026-04-XX...] [CACHE MISS] vacunacion_pendiente
 [BD] Consulta completada en XXXms
 ```
-
-> **📸 SCREENSHOT PENDIENTE:** Captura mostrando badge rojo después
-> de la invalidación. Reemplaza este bloque con tu imagen.
-
-> **📋 LOG PENDIENTE:** Copia aquí los 3 logs reales (INVALIDATED → MISS → BD).
 
 ---
 
