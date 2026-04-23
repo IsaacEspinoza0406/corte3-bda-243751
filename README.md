@@ -29,7 +29,7 @@ Sistema multi-usuario para la gestión de una clínica veterinaria con control d
 ```bash
 git clone https://github.com/IsaacEspinoza0406/corte3-bda-243751.git
 cd corte3-bda-243751
-cp .env.example .env       # editar con tus valores (mínimo: POSTGRES_PASSWORD)
+cp .env.example .env       # editar con tus valores
 docker-compose up --build
 ```
 
@@ -43,11 +43,13 @@ docker-compose up --build
 
 ### Usuarios de prueba
 
-| Usuario        | Rol               | Contraseña |
-|----------------|-------------------|------------|
-| vet_lopez      | rol_veterinario   | vet123     |
-| recepcion_ana  | rol_recepcion     | rec123     |
-| admin_isaac    | rol_administrador | adm123     |
+| Usuario        | Rol               | Contraseña       |
+|----------------|-------------------|------------      |
+| vet_lopez      | rol_veterinario   | VET-2018-001     |
+| vet_garcia     | rol_veterinario   | VET-2019-014     |
+| vet_mendez     | rol_veterinario   | VET-2021-027     |
+| recepcion_ana  | rol_recepcion     | rec123           |
+| admin_isaac    | rol_administrador | adm123           |
 
 ---
 
@@ -55,7 +57,7 @@ docker-compose up --build
 
 ```
 corte3-bda-243751/
-├── schema_corte3.sql              ← Schema base (del profesor, NO se modifica)
+├── schema_corte3.sql              ← Schema base.
 ├── docker-compose.yml
 ├── backend/
 │   ├── 01_procedures.sql          ← sp_agendar_cita
@@ -73,7 +75,7 @@ corte3-bda-243751/
 │           ├── citas.js           ← GET/POST /api/citas
 │           ├── vacunas.js         ← POST /api/vacunas
 │           └── vacunacion.js      ← GET /api/vacunacion-pendiente
-└── frontend/                      ← Next.js 16 (App Router)
+└── frontend/                      ← Next.js 16 
     └── app/
         ├── page.js                ← Selector de rol
         ├── buscar/page.js         ← Búsqueda de mascotas
@@ -82,7 +84,7 @@ corte3-bda-243751/
 
 ---
 
-## Decisiones de Diseño — Preguntas del Profesor
+## Decisiones de Diseño 
 
 ### 1. ¿Qué política RLS aplicaste a la tabla `mascotas`?
 
