@@ -1,7 +1,5 @@
--- =============================================================
 -- Row Level Security (RLS) — Clínica Veterinaria
--- Corte 3 · Base de Datos Avanzadas
---
+
 -- Mecanismo de identificación:
 --   El backend Node.js ejecuta SET LOCAL app.current_vet_id = '<id>'
 --   antes de cada query cuando el usuario es veterinario.
@@ -11,13 +9,11 @@
 --   variable no está seteada.
 --
 -- Orden de ejecución: ejecutar DESPUÉS de 04_roles_y_permisos.sql
--- Este script es re-ejecutable (DROP POLICY IF EXISTS antes de CREATE).
--- =============================================================
+-- Este script es re-ejecutable.
 
 
--- =============================================================
+
 -- 1. HABILITAR RLS EN LAS TABLAS SENSIBLES
--- =============================================================
 -- FORCE ROW LEVEL SECURITY se usa para que RLS aplique también
 -- al dueño de la tabla cuando se conecta directamente, excepto
 -- si tiene BYPASSRLS.
@@ -31,9 +27,7 @@ ALTER TABLE citas              FORCE ROW LEVEL SECURITY;
 ALTER TABLE vacunas_aplicadas  FORCE ROW LEVEL SECURITY;
 
 
--- =============================================================
 -- 2. POLÍTICAS EN mascotas
--- =============================================================
 
 -- ─── policy_mascotas_vet ───
 -- El veterinario solo ve mascotas asignadas a él en vet_atiende_mascota.
@@ -76,9 +70,7 @@ CREATE POLICY policy_mascotas_admin
     WITH CHECK (TRUE);
 
 
--- =============================================================
 -- 3. POLÍTICAS EN citas
--- =============================================================
 
 -- ─── policy_citas_vet ───
 -- El veterinario solo ve y crea citas donde él es el veterinario asignado.
@@ -109,7 +101,7 @@ CREATE POLICY policy_citas_recepcion
     WITH CHECK (TRUE);
 
 -- ─── policy_citas_admin ───
--- Acceso total para el administrador (redundante con BYPASSRLS).
+-- Acceso total para el administrador.
 DROP POLICY IF EXISTS policy_citas_admin ON citas;
 CREATE POLICY policy_citas_admin
     ON citas
@@ -119,12 +111,11 @@ CREATE POLICY policy_citas_admin
     WITH CHECK (TRUE);
 
 
--- =============================================================
 -- 4. POLÍTICAS EN vacunas_aplicadas
--- =============================================================
+
 -- Nota: rol_recepcion no tiene GRANT sobre vacunas_aplicadas,
 -- así que no necesita política aquí. El control de acceso opera
--- en dos capas: GRANT (tabla completa) + RLS (fila por fila).
+-- en dos capas: GRANT  + RLS.
 
 -- ─── policy_vacunas_vet ───
 -- El veterinario solo ve y registra vacunas de mascotas que atiende.
@@ -165,9 +156,7 @@ CREATE POLICY policy_vacunas_admin
     WITH CHECK (TRUE);
 
 
--- =============================================================
 -- 5. VERIFICACIÓN DE POLÍTICAS
--- =============================================================
 DO $$
 DECLARE
     v_pol_mascotas  INT;
