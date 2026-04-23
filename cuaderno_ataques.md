@@ -185,7 +185,7 @@ La condición `TRUE` permite que la recepción vea todas las filas sin filtro.
 2. En `/buscar`, click en "Buscar"
 
 **Resultado esperado:** La tabla muestra las **10 mascotas** del sistema.
-
+**Captura de pantalla:** docs/screenshots/rls_admin.png
 **¿Por qué ve todo?** El rol `rol_administrador` tiene `BYPASSRLS`, así que
 PostgreSQL ni siquiera evalúa las políticas. La API no ejecuta `SET ROLE`
 para el administrador — la conexión se mantiene como `vetadmin`.
@@ -217,8 +217,10 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 
 **Logs esperados en la terminal de la API:**
 ```
-[2026-04-XX...] [CACHE MISS] vacunacion_pendiente
-[BD] Consulta completada en XXXms
+[2026-04-23T05:23:38.347Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T05:23:59.216Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T05:34:55.229Z] [CACHE MISS] vacunacion_pendiente
+[BD] Consulta completada en 3ms
 ```
 
 ---
@@ -232,10 +234,17 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 - Badge: **CACHÉ HIT 🟢**
 - Response JSON incluye `"source": "cache"`
 - La respuesta es notablemente más rápida
+**Captura de pantalla:** docs/screenshots/redis_hit.png
 
 **Logs esperados:**
 ```
-[2026-04-XX...] [CACHE HIT] vacunacion_pendiente
+[BD] Consulta completada en 5ms
+[2026-04-23T06:06:01.819Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:00.610Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:22.702Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:42.213Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:43.394Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:46.566Z] [CACHE HIT] vacunacion_pendiente
 ```
 
 ---
@@ -256,12 +265,18 @@ para el administrador — la conexión se mantiene como `vetadmin`.
 **Resultado esperado:**
 - El caché fue invalidado por el POST
 - Badge: **BASE DE DATOS 🔴** (CACHE MISS porque la clave fue eliminada)
-
+**Captura de pantalla:** docs/screenshots/redis_invalidado.png
 **Logs esperados:**
 ```
-[2026-04-XX...] [CACHE INVALIDATED] vacunacion_pendiente
-[2026-04-XX...] [CACHE MISS] vacunacion_pendiente
-[BD] Consulta completada en XXXms
+[2026-04-23T06:06:01.819Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:00.610Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:22.702Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:42.213Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:43.394Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:07:46.566Z] [CACHE HIT] vacunacion_pendiente
+[2026-04-23T06:10:20.845Z] [CACHE INVALIDATED] vacunacion_pendiente
+[2026-04-23T06:10:20.852Z] [CACHE MISS] vacunacion_pendiente
+[BD] Consulta completada en 4ms
 ```
 
 ---
