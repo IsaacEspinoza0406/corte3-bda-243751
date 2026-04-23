@@ -1,10 +1,3 @@
--- =============================================================
--- Views — Clínica Veterinaria
--- Corte 3 · Base de Datos Avanzadas
--- =============================================================
-
-
--- =============================================================
 -- VISTA: v_mascotas_vacunacion_pendiente
 --
 -- Muestra las mascotas que necesitan vacunación:
@@ -13,7 +6,6 @@
 --
 -- Esta vista es la más costosa del sistema y será cacheada
 -- en Redis con una estrategia de invalidación adecuada.
--- =============================================================
 
 CREATE OR REPLACE VIEW v_mascotas_vacunacion_pendiente AS
 SELECT
