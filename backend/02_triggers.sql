@@ -1,8 +1,3 @@
--- =============================================================
--- Triggers y Funciones — Clínica Veterinaria
--- Corte 3 · Base de Datos Avanzadas
--- =============================================================
-
 
 -- =============================================================
 -- TRIGGER: trg_historial_cita
@@ -37,7 +32,7 @@ CREATE OR REPLACE TRIGGER trg_historial_cita
 
 -- =============================================================
 -- FUNCIÓN: fn_total_facturado
--- Devuelve el total facturado (costo de citas COMPLETADAS)
+-- Devuelve el total facturado 
 -- para una mascota en un año determinado.
 -- Retorna 0 si no hay citas o la mascota no existe.
 -- =============================================================
