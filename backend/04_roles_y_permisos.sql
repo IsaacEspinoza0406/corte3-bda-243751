@@ -1,18 +1,14 @@
--- =============================================================
 -- Roles y Permisos — Clínica Veterinaria
--- Corte 3 · Base de Datos Avanzadas
---
+
 -- Ejecutar conectado a clinica_vet como superusuario o como
 -- vetadmin (dueño de la BD).
 --
--- Este script es re-ejecutable (idempotente):
+-- Este script es re-ejecutable 
 --   usa DO $$ con verificación en pg_roles para roles/usuarios.
--- =============================================================
 
 
--- =============================================================
 -- 1. CREAR ROLES DE APLICACIÓN
--- =============================================================
+
 -- PostgreSQL 15 no tiene CREATE ROLE IF NOT EXISTS,
 -- así que usamos DO $$ con consulta a pg_roles.
 
@@ -44,9 +40,7 @@ BEGIN
 END $$;
 
 
--- =============================================================
--- 2. CREAR USUARIOS DE EJEMPLO (uno por rol)
--- =============================================================
+-- 2. CREAR USUARIOS DE EJEMPLO
 
 DO $$
 BEGIN
@@ -76,18 +70,16 @@ BEGIN
 END $$;
 
 
--- =============================================================
 -- 3. ASIGNAR CADA USUARIO A SU ROL
--- =============================================================
+
 
 GRANT rol_veterinario   TO vet_lopez;
 GRANT rol_recepcion     TO recepcion_ana;
 GRANT rol_administrador TO admin_isaac;
 
 
--- =============================================================
 -- 4. REVOCAR PRIVILEGIOS POR DEFECTO DEL ROL PUBLIC
--- =============================================================
+
 -- Por seguridad, eliminamos todo acceso del pseudo-rol PUBLIC
 -- a las tablas y secuencias. Así cada rol solo tiene lo que
 -- explícitamente le otorguemos.
@@ -96,28 +88,24 @@ REVOKE ALL ON ALL TABLES    IN SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 
 
--- =============================================================
 -- 5. OTORGAR ACCESO BÁSICO AL SCHEMA
--- =============================================================
 
 GRANT CONNECT ON DATABASE clinica_vet TO rol_veterinario, rol_recepcion, rol_administrador;
 GRANT USAGE   ON SCHEMA public        TO rol_veterinario, rol_recepcion, rol_administrador;
 
 
--- =============================================================
 -- 6. PERMISOS TABLA POR TABLA — rol_veterinario
--- =============================================================
+
 -- Principio: mínimo privilegio. Solo lo estrictamente necesario
 -- para que el veterinario haga su trabajo.
 
--- Mascotas: solo lectura (RLS filtra a las suyas)
+-- Mascotas: solo lectura 
 GRANT SELECT ON mascotas TO rol_veterinario;
 
--- Asignaciones vet ↔ mascota: lectura (requerido por las políticas RLS)
+-- Asignaciones vet ↔ mascota: lectura 
 GRANT SELECT ON vet_atiende_mascota TO rol_veterinario;
 
--- Veterinarios: lectura (necesario para que sp_agendar_cita pueda
--- verificar existencia y estado activo del veterinario)
+-- Veterinarios: lectura 
 GRANT SELECT ON veterinarios TO rol_veterinario;
 
 -- Citas: leer sus citas y agendar nuevas
@@ -129,7 +117,6 @@ GRANT SELECT, INSERT ON vacunas_aplicadas TO rol_veterinario;
 GRANT USAGE, SELECT  ON SEQUENCE vacunas_aplicadas_id_seq TO rol_veterinario;
 
 -- Inventario de vacunas: solo lectura
--- (necesita saber qué vacunas existen y su stock para poder aplicarlas)
 GRANT SELECT ON inventario_vacunas TO rol_veterinario;
 
 -- Historial de movimientos: solo INSERT (requerido por el trigger
@@ -144,28 +131,25 @@ REVOKE ALL ON duenos  FROM rol_veterinario;
 REVOKE ALL ON alertas FROM rol_veterinario;
 
 
--- =============================================================
 -- 7. PERMISOS TABLA POR TABLA — rol_recepcion
--- =============================================================
--- La recepción gestiona citas y contacto con dueños.
--- NO accede a información médica (vacunas) ni a auditoría.
 
--- Mascotas: lectura completa (sin RLS, ve todas)
+-- La recepción gestiona citas y contacto con dueños.
+-- NO accede a información médica  ni a auditoría.
+
+-- Mascotas: lectura completa 
 GRANT SELECT ON mascotas TO rol_recepcion;
 
--- Dueños: lectura (datos de contacto para coordinar citas)
+-- Dueños: lectura 
 GRANT SELECT ON duenos TO rol_recepcion;
 
--- Veterinarios: lectura (necesario para sp_agendar_cita y para
--- saber qué veterinarios están disponibles)
+-- Veterinarios: lectura 
 GRANT SELECT ON veterinarios TO rol_recepcion;
 
 -- Citas: leer todas y agendar nuevas
 GRANT SELECT, INSERT ON citas TO rol_recepcion;
 GRANT USAGE, SELECT  ON SEQUENCE citas_id_seq TO rol_recepcion;
 
--- Historial de movimientos: solo INSERT (mismo motivo que veterinario:
--- el trigger trg_historial_cita necesita insertar al crear citas)
+-- Historial de movimientos: 
 GRANT INSERT ON historial_movimientos TO rol_recepcion;
 GRANT USAGE, SELECT ON SEQUENCE historial_movimientos_id_seq TO rol_recepcion;
 
@@ -175,9 +159,8 @@ REVOKE ALL ON inventario_vacunas FROM rol_recepcion;
 REVOKE ALL ON alertas            FROM rol_recepcion;
 
 
--- =============================================================
 -- 8. PERMISOS — rol_administrador
--- =============================================================
+
 -- Acceso total. Sin restricciones de RLS.
 
 GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA public TO rol_administrador;
@@ -187,9 +170,8 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO rol_administrador;
 ALTER ROLE rol_administrador BYPASSRLS;
 
 
--- =============================================================
+
 -- 9. PERMISOS SOBRE PROCEDURES, FUNCIONES Y VISTAS
--- =============================================================
 
 -- sp_agendar_cita: veterinarios y recepción pueden agendar citas
 GRANT EXECUTE ON PROCEDURE sp_agendar_cita(INT, INT, TIMESTAMP, TEXT)
@@ -206,9 +188,7 @@ GRANT SELECT ON v_mascotas_vacunacion_pendiente
     TO rol_veterinario, rol_recepcion, rol_administrador;
 
 
--- =============================================================
 -- VERIFICACIÓN
--- =============================================================
 DO $$
 DECLARE
     v_roles   INT;
