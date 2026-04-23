@@ -131,7 +131,7 @@ el protocolo.
 3. En `/buscar`, click en "Buscar" (sin escribir nombre)
 
 **Resultado esperado:** La tabla muestra solo **3 mascotas**: Firulais, Toby, Max
-**Resultado real:**
+**Resultado real:** docs/screenshots/rls_vet1.png
 
 **Política RLS que lo produce:**
 ```sql
@@ -157,6 +157,7 @@ donde existe una fila en `vet_atiende_mascota` con `vet_id = 1`.
 2. En `/buscar`, click en "Buscar"
 
 **Resultado esperado:** La tabla muestra solo **3 mascotas**: Misifú, Luna, Dante
+**Captura de pantalla:** docs/screenshots/rls_vet2.png
 ---
 
 ### Prueba 2.3 — Recepción ve TODAS las mascotas
@@ -166,7 +167,7 @@ donde existe una fila en `vet_atiende_mascota` con `vet_id = 1`.
 2. En `/buscar`, click en "Buscar"
 
 **Resultado esperado:** La tabla muestra las **10 mascotas** del sistema.
-
+**Captura de pantalla:** docs/screenshots/rls_recepcion.png
 **Política RLS que lo produce:**
 ```sql
 CREATE POLICY policy_mascotas_recepcion ON mascotas
