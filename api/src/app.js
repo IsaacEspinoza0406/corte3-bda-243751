@@ -6,11 +6,11 @@ const cors = require('cors');
 const pool = require('./db');
 const redis = require('./cache');
 
-// Importar rutas
 const mascotasRouter = require('./routes/mascotas');
 const vacunacionRouter = require('./routes/vacunacion');
 const citasRouter = require('./routes/citas');
 const vacunasRouter = require('./routes/vacunas');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -28,6 +28,7 @@ app.use('/api/mascotas', mascotasRouter);
 app.use('/api/vacunacion-pendiente', vacunacionRouter);
 app.use('/api/citas', citasRouter);
 app.use('/api/vacunas', vacunasRouter);
+app.use('/api/auth', authRoutes);
 
 // ───── Arranque del servidor ─────
 const PORT = process.env.API_PORT || 3001;
