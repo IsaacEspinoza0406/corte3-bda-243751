@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+@theme {
+  --color-vet-dark: #1a5c38;
+  --color-vet-mid: #2d8653;
+  --color-vet-accent: #f5a623;
+  --color-vet-bg: #f8faf9;
+  --color-vet-row: #f0f7f2;
+  --color-vet-card: #ffffff;
+  --color-vet-success-bg: #ecfdf5;
+  --color-vet-success-text: #166534;
+  --color-vet-error-bg: #fef2f2;
+  --color-vet-error-text: #991b1b;
+  --color-vet-accent-bg: #fff7ed;
+  --color-vet-accent-text: #9a3412;
+}
+
+/* Custom focus ring for inputs */
+@layer utilities {
+  .vet-focus {
+    outline: none;
+  }
+  .vet-focus:focus {
+    border-color: var(--color-vet-mid);
+    box-shadow: 0 0 0 3px rgba(45, 134, 83, 0.18);
+  }
+}
+
+/* Pulse animation for loading */
+@keyframes vet-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-vet-pulse {
+  animation: vet-pulse 1.5s ease-in-out infinite;
+}
+
+/* Smooth fade-in for cards */
+@keyframes vet-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-vet-fade-in {
+  animation: vet-fade-in 0.4s ease-out;
+}

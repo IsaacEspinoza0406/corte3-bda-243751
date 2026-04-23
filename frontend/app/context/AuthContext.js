@@ -5,11 +5,12 @@ import { createContext, useContext, useState } from 'react';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [rol, setRol]     = useState('');
-  const [vetId, setVetId] = useState('');
+  const [rol, setRol]         = useState('');
+  const [vetId, setVetId]     = useState('');
+  const [usuario, setUsuario] = useState('');
 
   return (
-    <AuthContext.Provider value={{ rol, setRol, vetId, setVetId }}>
+    <AuthContext.Provider value={{ rol, setRol, vetId, setVetId, usuario, setUsuario }}>
       {children}
     </AuthContext.Provider>
   );

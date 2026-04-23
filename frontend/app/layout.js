@@ -13,14 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Clínica Veterinaria — Sistema de Gestión",
-  description: "Sistema multi-usuario para clínica veterinaria · Corte 3 BDA",
+  title: "VetSystem — Clínica Veterinaria",
+  description: "Sistema de gestión multi-usuario para clínica veterinaria · Tuxtla Gutiérrez",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="bg-gray-50 text-gray-900 min-h-screen font-[family-name:var(--font-geist-sans)]">
+      <body className="bg-vet-bg text-gray-900 min-h-screen font-[family-name:var(--font-geist-sans)] antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>
