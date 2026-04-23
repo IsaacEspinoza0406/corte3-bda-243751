@@ -28,7 +28,7 @@ inyección sea **estructuralmente imposible**, no depende de escapar caracteres.
 
 **Resultado esperado del atacante:** Todas las mascotas de la BD.
 **Resultado real:** 0 mascotas. La búsqueda trata el input literalmente como un nombre.
-
+**Captura de pantalla:** docs/screenshots/ataque1.png
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58:
@@ -60,7 +60,7 @@ No hay ninguna mascota cuyo nombre contenga esa cadena, así que retorna 0 filas
 
 **Resultado esperado del atacante:** La tabla `mascotas` es eliminada.
 **Resultado real:** 0 mascotas encontradas. La tabla sigue intacta.
-
+**Captura de pantalla:** docs/screenshots/ataque2.png
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58 (misma defensa):
@@ -91,7 +91,7 @@ instrucción SQL separada. Adicionalmente, incluso si llegara a ejecutarse de al
 
 **Resultado esperado del atacante:** Datos de la tabla `veterinarios` mezclados con mascotas.
 **Resultado real:** 0 mascotas encontradas. No hay datos exfiltrados.
-
+**Captura de pantalla:** docs/screenshots/ataque3.png
 **Línea que defendió:**
 
 Archivo: `api/src/routes/mascotas.js`, líneas 57-58 (misma defensa):
